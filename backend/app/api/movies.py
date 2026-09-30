@@ -59,4 +59,11 @@ async def similar(movie_id: int, page: int = Query(1, ge=1), db: Session = Depen
 
 @router.get("/{movie_id}/recommendations", response_model=MoviePage)
 async def movie_recommendations(movie_id: int, page: int = Query(1, ge=1), db: Session = Depends(get_db)):
-    return await similar(movie_id, page, db)
+    movie = db.get(__import__("app.db.models", fromlist=["Movie"]).Movie, movie_id)
+    from fastapi import HTTPException
+    if not movie: raise HTTPException(404, "Movie not found")
+    service = TMDBService()
+    try: payload = await service.recommendations(movie.tmdb_id, page)
+    finally: await service.aclose()
+    movies = [upsert_movie(db, item) for item in payload.get("results", [])]; db.commit()
+    return page_payload(movies, page, 20, payload.get("total_results", len(movies)))
