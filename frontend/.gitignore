@@ -4,6 +4,6 @@ out/
 .env
 .env.local
 npm-debug.log*
-*-smoke.log
-*-smoke.err
+*smoke*.log
+*smoke*.err
 *.tsbuildinfo
