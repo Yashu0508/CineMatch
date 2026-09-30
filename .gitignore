@@ -15,4 +15,6 @@ embedding-test.log
 embedding-test.err
 uvicorn-live.log
 uvicorn-live.err
+*-smoke.log
+*-smoke.err
 
