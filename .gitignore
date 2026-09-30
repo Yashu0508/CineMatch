@@ -1,0 +1,14 @@
+.env
+.venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+*.py[cod]
+*.egg-info/
+coverage.xml
+htmlcov/
+.ruff_cache/
+cinematch.db
+pip-install.log
+pip-install.err
+
