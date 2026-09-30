@@ -10,10 +10,24 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
   const headers = new Headers(init.headers); headers.set("Accept", "application/json");
   if (init.body && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
   const token = getToken(); if (token) headers.set("Authorization", `Bearer ${token}`);
-  const response = await fetch(`${API_URL}/api${path}`, { ...init, headers, cache: "no-store" });
+  const url = `${API_URL}/api${path}`;
+  let response: Response;
+  try {
+    response = await fetch(url, { ...init, headers, cache: "no-store" });
+  } catch (error) {
+    // Keep tokens out of diagnostics while making the common local setup
+    // failure actionable in the browser console and UI.
+    console.error("[CineMatch API] network failure", {
+      method: init.method || "GET",
+      path,
+      message: error instanceof Error ? error.message : "Network request failed",
+    });
+    throw new ApiError(0, "Unable to connect to the backend. Make sure FastAPI is running on port 8000.");
+  }
   if (!response.ok) {
     let message = "Something went wrong. Please try again.";
     try { const body = await response.json(); if (typeof body.detail === "string") message = body.detail; } catch { /* safe fallback */ }
+    console.error("[CineMatch API] request failed", { method: init.method || "GET", path, status: response.status, message });
     if (response.status === 401) clearToken();
     throw new ApiError(response.status, message);
   }

@@ -1,9 +1,19 @@
 from functools import lru_cache
+from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+# Resolve the repository-root environment file from this module's location so
+# the documented `cd backend && uvicorn ...` command loads the same settings as
+# a launch from the repository root.  A relative env_file would otherwise
+# silently fall back to development defaults when the working directory is
+# `backend/`.
+REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
+ENV_FILE = REPOSITORY_ROOT / ".env"
+
+
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=ENV_FILE, extra="ignore")
     app_env: str = "development"
     app_log_level: str = "INFO"
     api_prefix: str = "/api"
