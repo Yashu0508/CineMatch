@@ -1,12 +1,25 @@
 from datetime import date, datetime, timezone
 from uuid import UUID, uuid4
 from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, Integer, JSON, String, Text, UniqueConstraint, Index
+from sqlalchemy.types import TypeDecorator
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from pgvector.sqlalchemy import Vector
 from app.db.database import Base
 
 
 def now() -> datetime:
     return datetime.now(timezone.utc)
+
+
+class EmbeddingType(TypeDecorator):
+    """Use native pgvector in production while keeping SQLite tests self-contained."""
+    impl = JSON
+    cache_ok = True
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == "postgresql":
+            return dialect.type_descriptor(Vector(384))
+        return dialect.type_descriptor(JSON())
 
 
 class User(Base):
@@ -96,8 +109,7 @@ class UserPreferences(Base):
 class MovieEmbedding(Base):
     __tablename__ = "movie_embeddings"
     movie_id: Mapped[int] = mapped_column(ForeignKey("movies.id", ondelete="CASCADE"), primary_key=True)
-    # JSON permits local SQLite tests; Alembic uses vector(384) in PostgreSQL.
-    embedding: Mapped[list[float]] = mapped_column(JSON)
+    embedding: Mapped[list[float]] = mapped_column(EmbeddingType())
     model_name: Mapped[str] = mapped_column(String(255))
     embedding_version: Mapped[str] = mapped_column(String(64))
     source_hash: Mapped[str] = mapped_column(String(64), index=True)

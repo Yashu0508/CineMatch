@@ -11,4 +11,8 @@ htmlcov/
 cinematch.db
 pip-install.log
 pip-install.err
+embedding-test.log
+embedding-test.err
+uvicorn-live.log
+uvicorn-live.err
 
