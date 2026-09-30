@@ -1,6 +1,6 @@
-# CineMatch Backend
+# CineMatch
 
-Production-structured FastAPI backend for the CineMatch movie recommendation platform. This repository deliberately implements backend phase 1 only; no frontend is included.
+Production-structured FastAPI backend and Next.js frontend for the CineMatch movie recommendation platform.
 
 ## Quick start
 
@@ -8,7 +8,8 @@ Production-structured FastAPI backend for the CineMatch movie recommendation pla
 2. Copy `.env.example` to `.env` and set `DATABASE_URL`, Supabase values, and `TMDB_ACCESS_TOKEN`.
 3. Apply [`backend/app/db/migrations/001_initial.sql`](backend/app/db/migrations/001_initial.sql) in the Supabase SQL editor (it enables `vector`, tables, indexes, and RLS). For local SQLite experimentation, run `python scripts/seed_database.py`.
 4. Start the API: `cd backend && uvicorn app.main:app --reload`.
-5. Visit `http://localhost:8000/docs` and use `/api/health` for readiness.
+5. In a second terminal, start the frontend from `frontend/` with `pnpm install` and `pnpm dev`.
+6. Visit `http://localhost:8000/docs` and use `/api/health` for readiness.
 
 ## Configuration
 
@@ -29,4 +30,8 @@ From the repository root: `pytest backend/tests`. Tests use SQLite and mocked TM
 
 See [docs/API_CONTRACT.md](docs/API_CONTRACT.md) for the frontend-consumable endpoints and response shapes. FastAPI serves live OpenAPI at `/openapi.json` and Swagger at `/docs`.
 
-Before deploying, provision Supabase Postgres/Auth, run the migration, configure a private backend database credential and valid allowed frontend origin, and configure TMDB attribution in the future frontend: “This product uses the TMDB API but is not endorsed or certified by TMDB.”
+Before deploying, provision Supabase Postgres/Auth, run the migration, configure a private backend database credential and valid allowed frontend origin, and retain the TMDB attribution in the product: “This product uses the TMDB API but is not endorsed or certified by TMDB.”
+
+## Deployment
+
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the exact Render and Vercel procedure. The Render blueprint is [render.yaml](render.yaml). The frontend only needs the browser-safe `NEXT_PUBLIC_API_URL`; all database, Supabase service-role, and TMDB credentials remain on the backend.
