@@ -15,3 +15,4 @@ export type HistoryPage = { items: HistoryItem[]; page: number; total: number; t
 export type Preferences = { preferred_genres: number[]; preferred_languages: string[]; onboarding_complete: boolean };
 export type User = { id: string; email: string | null };
 export type TokenResponse = { access_token: string; token_type: string; refresh_token?: string | null };
+export type RegisterResponse = { access_token?: string | null; token_type: string; refresh_token?: string | null; confirmation_required?: boolean; message?: string | null };

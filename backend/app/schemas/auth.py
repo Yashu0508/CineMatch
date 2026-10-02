@@ -12,6 +12,14 @@ class TokenOut(BaseModel):
     refresh_token: str | None = None
 
 
+class RegisterOut(BaseModel):
+    access_token: str | None = None
+    token_type: str = "bearer"
+    refresh_token: str | None = None
+    confirmation_required: bool = False
+    message: str | None = None
+
+
 class MeOut(BaseModel):
     id: str
     email: str | None

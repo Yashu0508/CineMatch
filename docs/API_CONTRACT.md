@@ -5,7 +5,7 @@ Base URL: `/api`. JSON errors use `{"detail": "safe message"}`. Protected endpoi
 | Method | Path | Auth | Request/query | Success response | Errors |
 |---|---|---|---|---|---|
 | GET | `/health` | No | - | `{"status":"ok"}` | 500 |
-| POST | `/auth/register` | No | `{"email","password"}` | token object | 400, 503 |
+| POST | `/auth/register` | No | `{"email","password"}` | token object, or `{"confirmation_required":true,"message":"..."}` when email confirmation is enabled | 400, 429, 502, 503 |
 | POST | `/auth/login` | No | `{"email","password"}` | token object | 401, 503 |
 | GET | `/auth/me` | Yes | - | `{"id","email"}` | 401 |
 | GET | `/movies/{trending,popular,top-rated,upcoming}` | No | `page` | movie page | 502, 503, 429 |

@@ -11,6 +11,8 @@ class AuthService:
         async with httpx.AsyncClient(timeout=10) as client:
             response = await client.post(f"{settings.supabase_url.rstrip('/')}/auth/v1/{path}", json=body, headers={"apikey": settings.supabase_anon_key})
         if response.status_code >= 400:
+            if response.status_code == 429:
+                raise HTTPException(status_code=429, detail="Authentication service is temporarily rate limited")
             raise HTTPException(status_code=401 if path == "token?grant_type=password" else 400, detail="Authentication request failed")
         return response.json()
 
