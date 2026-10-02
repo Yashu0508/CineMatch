@@ -11,7 +11,7 @@ export function MovieCard({ movie, compact = false }: { movie: Movie; compact?: 
   const saved = watchlist.data?.items.some(item => item.movie_id === movie.id) ?? false;
   const poster = imageUrl(movie.poster_path);
   const toggle = (event: React.MouseEvent) => { event.preventDefault(); event.stopPropagation(); if (!user) return; saved ? remove.mutate(movie.id) : add.mutate(movie.id); };
-  return <Link href={`/movies/${movie.id}`} className={`group block ${compact ? "min-w-[150px]" : ""}`}>
+  return <Link href={`/movies/${movie.id}`} draggable={false} className={`group block shrink-0 ${compact ? "w-[150px] sm:w-[170px] lg:w-[190px]" : ""}`}>
     <div className="relative aspect-[2/3] overflow-hidden rounded-xl border border-white/10 bg-[#1a1c20] shadow-2xl transition duration-300 group-hover:-translate-y-1 group-hover:border-amber-200/50">
       {poster ? <img src={poster} alt={movie.title} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="flex h-full items-center justify-center p-4 text-center text-sm text-white/40">No poster available</div>}
       <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/90 to-transparent" />

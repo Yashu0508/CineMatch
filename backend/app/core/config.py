@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     collab_weight: float = 0.35
     popularity_weight: float = 0.10
     preference_weight: float = 0.10
-    allowed_origins: str = "http://localhost:3000"
+    allowed_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
     tmdb_cache_ttl_seconds: int = 300
     omdb_api_key: str = ""
     omdb_api_base_url: str = "https://www.omdbapi.com/"
