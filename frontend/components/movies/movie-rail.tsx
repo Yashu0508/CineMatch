@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Movie } from "@/types";
 import { MovieCard } from "./movie-card";
 
-export function MovieRail({ title, movies, href }: { title: string; movies: Movie[]; href?: string }) {
+export function MovieRail({ title, movies, href, showReminder = false }: { title: string; movies: Movie[]; href?: string; showReminder?: boolean }) {
   const railRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
   const moved = useRef(false);
@@ -47,21 +47,24 @@ export function MovieRail({ title, movies, href }: { title: string; movies: Movi
     moved.current = false;
     startX.current = event.clientX;
     startScroll.current = rail.scrollLeft;
-    rail.setPointerCapture(event.pointerId);
     rail.classList.add("cursor-grabbing");
   };
 
   const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!dragging.current || !railRef.current) return;
+    const rail = railRef.current;
+    if (!dragging.current || !rail) return;
     const distance = event.clientX - startX.current;
-    if (Math.abs(distance) > 4) moved.current = true;
-    railRef.current.scrollLeft = startScroll.current - distance;
+    if (Math.abs(distance) > 4) {
+      if (!moved.current) rail.setPointerCapture(event.pointerId);
+      moved.current = true;
+    }
+    rail.scrollLeft = startScroll.current - distance;
   };
 
   const stopDragging = (event: React.PointerEvent<HTMLDivElement>) => {
     if (!dragging.current) return;
     dragging.current = false;
-    railRef.current?.releasePointerCapture(event.pointerId);
+    if (railRef.current?.hasPointerCapture(event.pointerId)) railRef.current.releasePointerCapture(event.pointerId);
     railRef.current?.classList.remove("cursor-grabbing");
   };
 
@@ -85,9 +88,9 @@ export function MovieRail({ title, movies, href }: { title: string; movies: Movi
       </div>
     </div>
     <div ref={railRef} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={stopDragging} onPointerCancel={stopDragging} onClickCapture={preventClickAfterDrag} className="scrollbar-hide flex touch-pan-x select-none gap-4 overflow-x-auto overflow-y-hidden overscroll-x-contain pb-2 cursor-grab">
-      {movies.map(movie => <MovieCard key={movie.id} movie={movie} compact />)}
+      {movies.map(movie => <MovieCard key={movie.id} movie={movie} compact showReminder={showReminder} />)}
     </div>
   </section>;
 }
 
-export function MovieGrid({ movies }: { movies: Movie[] }) { return <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">{movies.map(movie => <MovieCard key={movie.id} movie={movie} />)}</div>; }
+export function MovieGrid({ movies, showReminder = false }: { movies: Movie[]; showReminder?: boolean }) { return <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">{movies.map(movie => <MovieCard key={movie.id} movie={movie} showReminder={showReminder} />)}</div>; }

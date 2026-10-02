@@ -8,6 +8,9 @@ Base URL: `/api`. JSON errors use `{"detail": "safe message"}`. Protected endpoi
 | POST | `/auth/register` | No | `{"email","password"}` | token object, or `{"confirmation_required":true,"message":"..."}` when email confirmation is enabled | 400, 429, 502, 503 |
 | POST | `/auth/login` | No | `{"email","password"}` | token object | 401, 503 |
 | GET | `/auth/me` | Yes | - | `{"id","email"}` | 401 |
+| GET | `/calendar/oauth/start` | Yes | `movie_id` (optional) | authorization URL or reminder-created status | 400, 401, 404, 409, 503 |
+| GET | `/calendar/oauth/callback` | No bearer token (validated OAuth state) | `state`, `code` or `error` | Redirects to the frontend with a safe calendar status | 400 |
+| POST | `/calendar/reminders` | Yes | `{"movie_id"}` | Google Calendar reminder record | 201, 400, 401, 404, 409, 429, 502 |
 | GET | `/movies/{trending,popular,top-rated,upcoming}` | No | `page` | movie page | 502, 503, 429 |
 | GET | `/movies/search` | No | `q`, `page` | movie page | 422, 502 |
 | GET | `/movies/{movie_id}` | No | - | movie | 404 |

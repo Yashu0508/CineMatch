@@ -2,7 +2,7 @@ import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api import auth, interactions, movies, recommendations
+from app.api import auth, calendar, interactions, movies, recommendations
 from app.core.config import get_settings
 from app.db.database import Base, engine
 
@@ -25,6 +25,7 @@ app.include_router(interactions.watchlist_router, prefix=settings.api_prefix)
 app.include_router(interactions.history_router, prefix=settings.api_prefix)
 app.include_router(interactions.users_router, prefix=settings.api_prefix)
 app.include_router(recommendations.router, prefix=settings.api_prefix)
+app.include_router(calendar.router, prefix=settings.api_prefix)
 
 @app.get("/api/health", tags=["health"])
 def health(): return {"status": "ok"}

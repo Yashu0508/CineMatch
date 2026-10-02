@@ -115,3 +115,36 @@ class MovieEmbedding(Base):
     source_hash: Mapped[str] = mapped_column(String(64), index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now, onupdate=now)
+
+
+class GoogleCalendarConnection(Base):
+    __tablename__ = "google_calendar_connections"
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    access_token_encrypted: Mapped[str] = mapped_column(Text)
+    refresh_token_encrypted: Mapped[str | None] = mapped_column(Text)
+    token_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    scope: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now, onupdate=now)
+
+
+class GoogleOAuthState(Base):
+    __tablename__ = "google_oauth_states"
+    state_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    movie_id: Mapped[int | None] = mapped_column(ForeignKey("movies.id", ondelete="CASCADE"), index=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    consumed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class CalendarReminder(Base):
+    __tablename__ = "calendar_reminders"
+    __table_args__ = (UniqueConstraint("user_id", "movie_id", name="uq_calendar_reminders_user_movie"), Index("ix_calendar_reminders_user", "user_id"))
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    movie_id: Mapped[int] = mapped_column(ForeignKey("movies.id", ondelete="CASCADE"), index=True)
+    google_event_id: Mapped[str] = mapped_column(String(255), unique=True)
+    release_date: Mapped[date] = mapped_column(Date)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+    movie: Mapped[Movie] = relationship(lazy="joined")

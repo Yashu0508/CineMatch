@@ -2,13 +2,14 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from app.core.security import AuthenticatedUser, get_current_user
 from app.db.database import get_db
+from app.schemas.movie import MovieOut
 from app.schemas.recommendation import RecommendationOut
 from app.services.recommendation_service import RecommendationService
 
 router = APIRouter(prefix="/recommendations", tags=["recommendations"])
 
 def serialize(row):
-    movie = RecommendationOut.model_validate(row["movie"]).model_dump()
+    movie = MovieOut.model_validate(row["movie"]).model_dump()
     return {**movie, "score": row["score"], "reason_type": row["reason_type"], "reason_value": row["reason_value"]}
 
 @router.get("/for-you", response_model=list[RecommendationOut])

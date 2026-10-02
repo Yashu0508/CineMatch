@@ -37,6 +37,10 @@ class Settings(BaseSettings):
     omdb_api_key: str = ""
     omdb_api_base_url: str = "https://www.omdbapi.com/"
     omdb_cache_ttl_seconds: int = 300
+    google_client_id: str = ""
+    google_client_secret: str = ""
+    google_redirect_uri: str = "http://localhost:8000/api/calendar/oauth/callback"
+    google_token_encryption_key: str = ""
 
     @property
     def origins(self) -> list[str]:
