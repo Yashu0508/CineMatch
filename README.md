@@ -14,6 +14,15 @@ The repository contains a Next.js frontend and a FastAPI backend. The browser co
 - Onboarding and user preference updates.
 - Horizontal movie rails and responsive movie grids in the frontend.
 - Google Calendar reminders for upcoming movies with a valid future release date.
+- Profile avatars: authenticated users can upload a personal image, choose a built-in CineMatch preset, and switch between the two.
+
+### Profile avatars
+
+Authenticated users can upload a custom profile picture from their device or choose a built-in CineMatch avatar preset. They can switch between the uploaded image and a preset; selecting a preset temporarily changes the active avatar without deleting the uploaded image.
+
+Uploaded avatars are stored in the private Supabase Storage bucket `profile-avatars`. The browser does not access Supabase Storage directly: FastAPI handles authenticated uploads and generates signed display URLs. The API only permits a user to modify their own avatar, and uploaded files are validated for supported image formats, file signatures, and size limits.
+
+Avatar uploads use `multipart/form-data`. The frontend API client must not force `Content-Type: application/json` for `FormData` requests. Signed URLs are generated on demand by the backend, which normalizes Supabase URLs to include `/storage/v1` when necessary.
 
 ### Google Calendar reminders
 
@@ -167,8 +176,18 @@ The SQL migrations are in `backend/app/db/migrations/`:
 
 - `001_initial.sql` creates the core movie, user-interaction, embedding, and pgvector schema.
 - `002_google_calendar.sql` creates encrypted-token, OAuth-state, and calendar-reminder tables.
+- `003_profile_avatar.sql` adds `avatar_type`, `avatar_ref`, and `avatar_upload_ref` to the `users` table for preset and uploaded profile avatars.
 
-Apply the SQL migrations to the Supabase database in order using the Supabase SQL editor. The Google Calendar migration must be applied before using calendar reminders. In development with SQLite, `scripts/seed_database.py` can create local tables from SQLAlchemy metadata for experimentation; it is not a substitute for applying the Supabase migrations.
+Apply the SQL migrations to the Supabase database in order using the Supabase SQL editor. The Google Calendar and profile-avatar migrations must be applied before using their respective features. In development with SQLite, `scripts/seed_database.py` can create local tables from SQLAlchemy metadata for experimentation; it is not a substitute for applying the Supabase migrations.
+
+### Profile avatar Supabase setup
+
+Before using profile avatars:
+
+1. Apply `backend/app/db/migrations/003_profile_avatar.sql` after the existing migrations.
+2. Create a **private** Supabase Storage bucket named `profile-avatars`.
+3. Ensure the backend has its required Supabase service-role configuration; never expose the service-role key to the frontend.
+4. Restart the backend after changing environment or Supabase configuration.
 
 ## Data and recommendation workflows
 
@@ -191,6 +210,15 @@ Embeddings use `sentence-transformers/all-MiniLM-L6-v2` and are stored as 384-di
 The frontend-facing API contract is documented in [docs/API_CONTRACT.md](docs/API_CONTRACT.md). FastAPI provides live documentation at `http://localhost:8000/docs` and the OpenAPI document at `http://localhost:8000/openapi.json`.
 
 The API includes authentication, movie discovery/search/detail routes, ratings, watchlist, viewing history, preferences, recommendations, and Google Calendar OAuth/reminder routes.
+
+Profile avatar endpoints:
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/api/users/profile` | Return the authenticated user's profile, including the active avatar reference or signed display URL. |
+| `POST` | `/api/users/avatar/upload` | Upload and activate a validated custom avatar using multipart form data. |
+| `PUT` | `/api/users/avatar/preset` | Select and activate a built-in CineMatch avatar preset. |
+| `PUT` | `/api/users/avatar/upload/activate` | Reactivate the user's previously uploaded avatar without re-uploading it. |
 
 ## Testing
 
@@ -221,5 +249,12 @@ The repository contains no automated deployment configuration. Local build/test 
 - OAuth state is short-lived, stored hashed, and validated by the callback.
 - The frontend communicates with FastAPI and does not call OMDb or Google Calendar directly.
 - CORS is controlled by `ALLOWED_ORIGINS`; it is not configured as a wildcard.
+- Profile-avatar endpoints require authentication and do not accept arbitrary user IDs. Users can only modify their own avatar.
+- The `profile-avatars` bucket remains private; uploaded images are displayed through backend-generated signed URLs.
+- Avatar uploads are checked by MIME type, file signature, and size before storage.
 
 Do not describe the application as deployed or production-verified unless the relevant external services, migrations, hosting configuration, and live user flows have been tested separately.
+
+## Documentation maintenance
+
+Whenever a new feature, API endpoint, database migration, environment variable, external service, or significant bug fix is introduced, update this README in the same change so the documentation remains synchronized with the implementation.
