@@ -51,3 +51,26 @@ def test_upcoming_only_returns_future_dated_movies(client):
     assert set(payload) == {"items", "page", "total", "total_pages"}
     assert payload["total"] == 1
     assert [item["title"] for item in payload["items"]] == ["Future Release"]
+
+
+def test_popular_and_trending_use_distinct_rankings(client):
+    api, Session, user = client
+    with Session() as db:
+        db.add(User(id=user.id, email=user.email))
+        db.add_all(
+            [
+                Movie(tmdb_id=201, title="Popular Older", popularity=100, release_date=date.today() - timedelta(days=500)),
+                Movie(tmdb_id=202, title="Recent Trending", popularity=90, release_date=date.today() - timedelta(days=7)),
+                Movie(tmdb_id=204, title="Future Release", popularity=80, release_date=date.today() + timedelta(days=7)),
+                Movie(tmdb_id=203, title="No Metadata", popularity=None, release_date=None),
+            ]
+        )
+        db.commit()
+
+    popular = api.get("/api/movies/popular").json()
+    trending = api.get("/api/movies/trending").json()
+
+    assert [item["title"] for item in popular["items"][:2]] == ["Popular Older", "Recent Trending"]
+    assert [item["title"] for item in trending["items"][:2]] == ["Recent Trending", "Popular Older"]
+    assert [item["title"] for item in trending["items"]][2] == "Future Release"
+    assert trending["items"][-1]["title"] == "No Metadata"

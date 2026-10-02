@@ -1,5 +1,5 @@
-from datetime import date
-from sqlalchemy import func, select
+from datetime import date, timedelta
+from sqlalchemy import case, func, select
 from sqlalchemy.orm import Session
 from app.db.models import Genre, Movie, MovieGenre
 
@@ -42,6 +42,22 @@ def discovery_movies(db: Session, category: str, page: int, page_size: int = 20)
         statement = statement.order_by(Movie.vote_average.desc().nullslast(), Movie.vote_count.desc().nullslast())
     elif category == "upcoming":
         statement = statement.where(Movie.release_date > date.today()).order_by(Movie.release_date.asc())
+    elif category == "trending":
+        today = date.today()
+        # Add a transparent recency bonus to stored popularity. Future movies
+        # receive no bonus, so they cannot rank highly merely because their
+        # release date is close; missing dates/popularity remain safe defaults.
+        recency_bonus = case(
+            (Movie.release_date >= today - timedelta(days=30), 30.0),
+            (Movie.release_date >= today - timedelta(days=180), 15.0),
+            (Movie.release_date >= today - timedelta(days=365), 7.5),
+            else_=0.0,
+        )
+        trending_score = func.coalesce(Movie.popularity, 0.0) + case(
+            (Movie.release_date <= today, recency_bonus),
+            else_=0.0,
+        )
+        statement = statement.order_by(trending_score.desc(), Movie.id.asc())
     else:
         statement = statement.order_by(Movie.popularity.desc().nullslast())
     total = db.scalar(select(func.count()).select_from(statement.order_by(None).subquery())) or 0
