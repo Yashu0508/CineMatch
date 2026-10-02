@@ -24,6 +24,10 @@ Base URL: `/api`. JSON errors use `{"detail": "safe message"}`. Protected endpoi
 | GET | `/history` | Yes | pagination | history page | 401 |
 | POST | `/history/{movie_id}` | Yes | - | history record | 401, 404 |
 | GET/PUT | `/users/preferences` | Yes | `{"preferred_genres":[1],"preferred_languages":["en"],"onboarding_complete":true}` for PUT | preferences | 401, 422 |
+| GET | `/users/profile` | Yes | - | profile and active avatar reference/URL | 401, 503 |
+| POST | `/users/avatar/upload` | Yes | multipart `file` (JPEG, PNG, or WebP; max 5 MB) | updated profile | 401, 413, 415, 503 |
+| PUT | `/users/avatar/preset` | Yes | `{"avatar_id":"sunset"}` | updated profile | 400, 401 |
+| PUT | `/users/avatar/upload/activate` | Yes | - | updated profile | 401, 404, 503 |
 | GET | `/recommendations/for-you` | Yes | `limit` | recommendation array | 401 |
 | GET | `/recommendations/similar/{movie_id}` | No | `limit` | recommendation array | 404 |
 | GET | `/recommendations/because-you-liked/{movie_id}` | Yes | `limit` | recommendation array | 401, 404 |

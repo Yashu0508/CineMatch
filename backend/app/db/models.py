@@ -28,6 +28,9 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(320), unique=True, index=True)
     username: Mapped[str | None] = mapped_column(String(64), unique=True)
     display_name: Mapped[str | None] = mapped_column(String(128))
+    avatar_type: Mapped[str | None] = mapped_column(String(16))
+    avatar_ref: Mapped[str | None] = mapped_column(String(255))
+    avatar_upload_ref: Mapped[str | None] = mapped_column(String(255))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now, onupdate=now)
 

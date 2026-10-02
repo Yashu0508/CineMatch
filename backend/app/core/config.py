@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     supabase_url: str = ""
     supabase_anon_key: str = ""
     supabase_service_role_key: str = ""
+    supabase_storage_bucket: str = "profile-avatars"
     tmdb_access_token: str = ""
     tmdb_api_base_url: str = "https://api.themoviedb.org/3"
     tmdb_language: str = "en-US"

@@ -14,5 +14,6 @@ export type HistoryItem = { movie_id: number; watched_at: string; movie: Movie }
 export type HistoryPage = { items: HistoryItem[]; page: number; total: number; total_pages: number };
 export type Preferences = { preferred_genres: number[]; preferred_languages: string[]; onboarding_complete: boolean };
 export type User = { id: string; email: string | null };
+export type Profile = { id: string; email: string | null; avatar_type?: "upload" | "preset" | null; avatar_id?: string | null; avatar_url?: string | null; has_uploaded_avatar?: boolean };
 export type TokenResponse = { access_token: string; token_type: string; refresh_token?: string | null };
 export type RegisterResponse = { access_token?: string | null; token_type: string; refresh_token?: string | null; confirmation_required?: boolean; message?: string | null };
