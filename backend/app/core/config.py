@@ -34,6 +34,9 @@ class Settings(BaseSettings):
     preference_weight: float = 0.10
     allowed_origins: str = "http://localhost:3000"
     tmdb_cache_ttl_seconds: int = 300
+    omdb_api_key: str = ""
+    omdb_api_base_url: str = "https://www.omdbapi.com/"
+    omdb_cache_ttl_seconds: int = 300
 
     @property
     def origins(self) -> list[str]:

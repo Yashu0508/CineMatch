@@ -34,3 +34,15 @@ def local_movies(db: Session, page: int, page_size: int, query: str | None = Non
     if query: statement = statement.where(Movie.title.ilike(f"%{query}%"))
     total = db.scalar(select(func.count()).select_from(statement.subquery())) or 0
     return list(db.scalars(statement.order_by(Movie.popularity.desc().nullslast()).offset((page - 1) * page_size).limit(page_size))), total
+
+
+def discovery_movies(db: Session, category: str, page: int, page_size: int = 20) -> tuple[list[Movie], int]:
+    statement = select(Movie)
+    if category == "top-rated":
+        statement = statement.order_by(Movie.vote_average.desc().nullslast(), Movie.vote_count.desc().nullslast())
+    elif category == "upcoming":
+        statement = statement.where(Movie.release_date.is_not(None)).order_by(Movie.release_date.asc())
+    else:
+        statement = statement.order_by(Movie.popularity.desc().nullslast())
+    total = db.scalar(select(func.count()).select_from(statement.order_by(None).subquery())) or 0
+    return list(db.scalars(statement.offset((page - 1) * page_size).limit(page_size))), total

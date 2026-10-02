@@ -27,4 +27,6 @@ Base URL: `/api`. JSON errors use `{"detail": "safe message"}`. Protected endpoi
 
 `movie page` is `{"items":[movie],"page":1,"total":20,"total_pages":1}`. A `movie` has internal `id`, distinct `tmdb_id`, title/metadata fields, and `genres`. A recommendation adds `score`, `reason_type`, and `reason_value`. Token objects contain `access_token`, `refresh_token` (when issued), and `token_type`.
 
-TMDB data is provided subject to TMDB terms. Clients should present the required attribution: “This product uses the TMDB API but is not endorsed or certified by TMDB.”
+Movie metadata search is provided by OMDb through the backend. Discovery, similar movies, and recommendations use the local catalog and existing recommendation system; OMDb does not provide direct equivalents for those feeds.
+
+The existing `tmdb_id` response field and database column remain for backward compatibility with already-ingested records. OMDb IMDb identifiers are not written into that integer field.
