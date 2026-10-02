@@ -44,13 +44,7 @@ class TMDBService:
         key = f"{path}:{sorted((params or {}).items())}"
         if cacheable and (cached := self.cache.get(key)) is not None:
             return cached
-        try:
-            payload = await self._request(path, params)
-        except httpx.TransportError as exc:
-            # Keep provider outages actionable without exposing request headers
-            # or credentials. Tenacity has already exhausted its retries.
-            logger.warning("TMDB transport failure: path=%s error=%s", path, type(exc).__name__)
-            raise HTTPException(status_code=503, detail="Movie provider is temporarily unavailable") from exc
+        payload = await self._request(path, params)
         if cacheable:
             self.cache.set(key, payload, self.settings.tmdb_cache_ttl_seconds)
         return payload

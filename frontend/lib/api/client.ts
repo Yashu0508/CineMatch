@@ -1,5 +1,4 @@
-const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
-const API_URL = (configuredApiUrl || (process.env.NODE_ENV === "development" ? "http://localhost:8000" : "")).replace(/\/$/, "");
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/$/, "");
 
 export class ApiError extends Error { constructor(public status: number, message: string) { super(message); } }
 
@@ -8,9 +7,6 @@ export function setToken(token: string) { window.localStorage.setItem("cinematch
 export function clearToken() { window.localStorage.removeItem("cinematch_access_token"); }
 
 export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
-  if (!API_URL) {
-    throw new ApiError(0, "The frontend API URL is not configured. Set NEXT_PUBLIC_API_URL and rebuild.");
-  }
   const headers = new Headers(init.headers); headers.set("Accept", "application/json");
   if (init.body && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
   const token = getToken(); if (token) headers.set("Authorization", `Bearer ${token}`);
